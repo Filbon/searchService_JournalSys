@@ -16,17 +16,16 @@ public class Patient {
 
     private LocalDate birthdate;
 
+    @Column(name = "user_id")
     private Long userId; // Referencing the user ID for search filtering
 
-    @ElementCollection // Simple representation of conditions as strings
-    @CollectionTable(name = "patient_conditions", joinColumns = @JoinColumn(name = "patient_id"))
-    @Column(name = "condition")
-    private List<String> conditions; // Store condition names or codes for lightweight storage
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Condition> conditions;
 
     public Patient() {
     }
 
-    public Patient(Long id, String name, LocalDate birthdate, Long userId, List<String> conditions) {
+    public Patient(Long id, String name, LocalDate birthdate, Long userId, List<Condition> conditions) {
         this.id = id;
         this.name = name;
         this.birthdate = birthdate;
@@ -67,12 +66,13 @@ public class Patient {
         this.userId = userId;
     }
 
-    public List<String> getConditions() {
+    public List<Condition> getConditions() {
         return conditions;
     }
 
-    public void setConditions(List<String> conditions) {
+    public void setConditions(List<Condition> conditions) {
         this.conditions = conditions;
     }
+
 }
 

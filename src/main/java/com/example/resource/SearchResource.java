@@ -1,15 +1,15 @@
 package com.example.resource;
 
 import jakarta.inject.Inject;
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
-import com.example.model.Condition;
-import com.example.model.Encounter;
 import com.example.model.Patient;
 import com.example.model.Practitioner;
 import com.example.service.SearchService;
 import io.smallrye.mutiny.Uni;
+import jakarta.ws.rs.core.Response;
+
 import java.util.List;
 
 @Path("/search")
@@ -23,32 +23,23 @@ public class SearchResource {
     @Path("/patients/name/{name}")
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<List<Patient>> getPatientsByName(@PathParam("name") String name) {
-        return searchService.searchPatientsByName(name);
+        System.out.println("Received request to search patients by name: " + name);
+
+        return searchService.searchPatientsByName(name)
+                .onItem().invoke(results -> {
+                    if (results != null && !results.isEmpty()) {
+                        System.out.println("Found patients: " + results.get(0).getName());
+                    } else {
+                        System.out.println("No patients found for the name: " + name);
+                    }
+                })
+                .onFailure().invoke(throwable -> {
+                    System.err.println("An error occurred while searching for patients by name: " + throwable.getMessage());
+                    throwable.printStackTrace();
+                });
     }
 
-    // Endpoint to search conditions by patient ID
-    @GET
-    @Path("/conditions/patient/{patientId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Uni<List<Condition>> getConditionsByPatientId(@PathParam("patientId") Long patientId) {
-        return searchService.searchConditionsByPatientId(patientId);
-    }
 
-    // Endpoint to search conditions by status
-    @GET
-    @Path("/conditions/status/{status}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Uni<List<Condition>> getConditionsByStatus(@PathParam("status") String status) {
-        return searchService.searchConditionsByStatus(status);
-    }
-
-    // Endpoint to search practitioners by specialization
-    @GET
-    @Path("/practitioners/specialization/{specialization}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Uni<List<Practitioner>> getPractitionersBySpecialization(@PathParam("specialization") String specialization) {
-        return searchService.searchPractitionersBySpecialization(specialization);
-    }
 
     // Endpoint to search practitioners with encounters on a specific date
     @GET
@@ -58,35 +49,11 @@ public class SearchResource {
         return searchService.searchPractitionersWithEncountersByDate(date);
     }
 
-    // Endpoint to search encounters by patient ID
-    @GET
-    @Path("/encounters/patient/{patientId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Uni<List<Encounter>> getEncountersByPatientId(@PathParam("patientId") Long patientId) {
-        return searchService.searchEncountersByPatientId(patientId);
-    }
-
-    // Endpoint to search encounters by practitioner ID
-    @GET
-    @Path("/encounters/practitioner/{practitionerId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Uni<List<Encounter>> getEncountersByPractitionerId(@PathParam("practitionerId") Long practitionerId) {
-        return searchService.searchEncountersByPractitionerId(practitionerId);
-    }
-
-    // Endpoint to search encounters by date
-    @GET
-    @Path("/encounters/date/{date}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Uni<List<Encounter>> getEncountersByDate(@PathParam("date") String date) {
-        return searchService.searchEncountersByDate(date);
-    }
-
-    @GET
+    /*@GET
     @Path("/patients/by-condition")
     public Uni<List<Patient>> searchPatientsByCondition(@QueryParam("conditionName") String conditionName) {
         return searchService.searchPatientsByCondition(conditionName);
-    }
+    }*/
 
     @GET
     @Path("/patients-by-encounter")
@@ -100,6 +67,12 @@ public class SearchResource {
         return searchService.searchPatientsByEncounter(reason, outcome, encounterDate);
     }
 
+    @GET
+    @Path("/test")
+    public String testEndpoint() {
+        System.out.println("Test endpoint called");
+        return "Hello from test endpoint!";
+    }
 
 }
 

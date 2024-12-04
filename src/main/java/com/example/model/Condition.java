@@ -17,23 +17,26 @@ public class Condition {
 
     private String description;
 
+    @Column(name = "diagnosis_date")
     private LocalDate diagnosisDate;
 
     @Enumerated(EnumType.STRING)
     private ConditionStatus status;
 
-    private Long patientId; // Storing the ID of the patient, not the full entity
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id")
+    private Patient patient; // Storing the ID of the patient, not the full entity
 
     public Condition() {
     }
 
-    public Condition(Long id, String name, String description, LocalDate diagnosisDate, ConditionStatus status, Long patientId) {
+    public Condition(Long id, String name, String description, LocalDate diagnosisDate, ConditionStatus status, Patient patient) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.diagnosisDate = diagnosisDate;
         this.status = status;
-        this.patientId = patientId;
+        this.patient = patient;
     }
 
     // Getters and setters
@@ -77,11 +80,11 @@ public class Condition {
         this.status = status;
     }
 
-    public Long getPatientId() {
-        return patientId;
+    public Patient getPatient() {
+        return patient;
     }
 
-    public void setPatientId(Long patientId) {
-        this.patientId = patientId;
+    public void setPatient(Long patientId) {
+        this.patient = patient;
     }
 }

@@ -99,6 +99,20 @@
             <artifactId>quarkus-datasource</artifactId>
             <version>3.17.2</version>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-reactive</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-reactive-mysql-client</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.quarkus/quarkus-resteasy-reactive-jsonb -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-resteasy-reactive-jsonb</artifactId>
+            <version>3.15.2</version>
+        </dependency>
 
 
     </dependencies>
