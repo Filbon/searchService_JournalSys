@@ -1,5 +1,7 @@
 package com.example.resource;
 
+import com.example.DTO.EncounterDTO;
+import com.example.DTO.PatientDTO;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -22,7 +24,7 @@ public class SearchResource {
     @GET
     @Path("/patients/name/{name}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<List<Patient>> getPatientsByName(@PathParam("name") String name) {
+    public Uni<List<PatientDTO>> getPatientsByName(@PathParam("name") String name) {
         System.out.println("Received request to search patients by name: " + name);
 
         return searchService.searchPatientsByName(name)
@@ -39,40 +41,41 @@ public class SearchResource {
                 });
     }
 
-
-
-    // Endpoint to search practitioners with encounters on a specific date
     @GET
-    @Path("/practitioners/encounters/{date}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Uni<List<Practitioner>> getPractitionersWithEncountersByDate(@PathParam("date") String date) {
-        return searchService.searchPractitionersWithEncountersByDate(date);
-    }
-
-    /*@GET
     @Path("/patients/by-condition")
-    public Uni<List<Patient>> searchPatientsByCondition(@QueryParam("conditionName") String conditionName) {
-        return searchService.searchPatientsByCondition(conditionName);
-    }*/
-
-    @GET
-    @Path("/patients-by-encounter")
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<List<Uni<Patient>>> getPatientsByEncounter(
-            @QueryParam("reason") String reason,
-            @QueryParam("outcome") String outcome,
-            @QueryParam("date") String encounterDate) {
-
-        // Call the method from the service and return the response
-        return searchService.searchPatientsByEncounter(reason, outcome, encounterDate);
+    public Uni<List<PatientDTO>> searchPatientsByCondition(@QueryParam("conditionName") String conditionName) {
+        return searchService.searchPatientsByCondition(conditionName);
     }
 
     @GET
-    @Path("/test")
-    public String testEndpoint() {
-        System.out.println("Test endpoint called");
-        return "Hello from test endpoint!";
-    }
+    @Path("/{practitionerId}/patients")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<List<PatientDTO>> getPatientsByPractitioner(@PathParam("practitionerId") Long practitionerId) {
+        System.out.println("Received request to get patients by practitioner ID: " + practitionerId);
 
+        return searchService.getPatientsByPractitioner(practitionerId);
+    }
+    @GET
+    @Path("/{practitionerId}/encounters/date/{date}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<List<EncounterDTO>> getPractitionerEncountersByDate(
+            @PathParam("practitionerId") Long practitionerId,
+            @PathParam("date") String date) {
+        System.out.println("Received request to get encounters for practitioner ID: " + practitionerId + " on date: " + date);
+
+        return searchService.getPractitionerEncountersByDate(practitionerId, date)
+                .onItem().invoke(results -> {
+                    if (results != null && !results.isEmpty()) {
+                        System.out.println("Found encounters for practitioner ID " + practitionerId + " on date: " + date);
+                    } else {
+                        System.out.println("No encounters found for practitioner ID " + practitionerId + " on date: " + date);
+                    }
+                })
+                .onFailure().invoke(throwable -> {
+                    System.err.println("An error occurred while searching for encounters by practitioner ID and date: " + throwable.getMessage());
+                    throwable.printStackTrace();
+                });
+    }
 }
 

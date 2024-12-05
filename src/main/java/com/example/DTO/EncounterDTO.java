@@ -1,32 +1,18 @@
-package com.example.model;
-
-import jakarta.persistence.*;
+package com.example.DTO;
 
 import java.time.LocalDateTime;
 
-@Entity
-public class Encounter {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class EncounterDTO {
     private Long id;
-
     private LocalDateTime date;
-
     private String reason;
-
     private String outcome;
+    private Long patientId;
+    private Long practitionerId;
 
-    @Column(name = "patient_id")
-    private Long patientId; // Referencing the patient by ID
+    public EncounterDTO() {}
 
-    @Column(name = "practitioner_id")
-    private Long practitionerId; // Referencing the practitioner by ID
-
-    public Encounter() {
-    }
-
-    public Encounter(Long id, LocalDateTime date, String reason, String outcome, Long patientId, Long practitionerId) {
+    public EncounterDTO(Long id, LocalDateTime date, String reason, String outcome, Long patientId, Long practitionerId) {
         this.id = id;
         this.date = date;
         this.reason = reason;
@@ -35,7 +21,6 @@ public class Encounter {
         this.practitionerId = practitionerId;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -84,4 +69,3 @@ public class Encounter {
         this.practitionerId = practitionerId;
     }
 }
-
