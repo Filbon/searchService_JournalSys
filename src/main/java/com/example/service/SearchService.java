@@ -19,10 +19,7 @@ import net.bytebuddy.asm.Advice;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -64,18 +61,41 @@ public class SearchService {
     }
     @WithSession
     public Uni<List<EncounterDTO>> getPractitionerEncountersByDate(Long practitionerId, String date) {
-
         LocalDate localDate = LocalDate.parse(date);
         LocalDateTime parsedDate = localDate.atStartOfDay();
 
-        return encounterRepository.find("practitionerId = ?1 and date >= ?2",
-                        practitionerId, parsedDate).list()
-                .onItem().transform(encounters ->
-                        encounters.stream()
-                                .map(EntityMapper::mapToEncounterDTO)
-                                .collect(Collectors.toList())
-                );
+        // Fetch encounters for the practitioner and date
+        return encounterRepository.find("practitionerId = ?1 and date >= ?2", practitionerId, parsedDate).list()
+                .onItem().transformToUni(encounters -> {
+                    if (encounters.isEmpty()) {
+                        System.out.println("No encounters found for practitionerId: " + practitionerId + " on date: " + date);
+                        return Uni.createFrom().item(Collections.emptyList());
+                    }
+
+                    // Extract unique patient IDs
+                    Set<Long> patientIds = encounters.stream()
+                            .map(Encounter::getPatientId)
+                            .collect(Collectors.toSet());
+
+                    // Fetch patients for these IDs
+                    return patientRepository.find("id in ?1", patientIds).list()
+                            .map(patients -> {
+                                // Create a map of patientId to patientName
+                                Map<Long, String> patientNameMap = patients.stream()
+                                        .collect(Collectors.toMap(Patient::getId, Patient::getName));
+
+                                // Map encounters to EncounterDTO and include patientName
+                                return encounters.stream()
+                                        .map(encounter -> {
+                                            EncounterDTO dto = EntityMapper.mapToEncounterDTO(encounter);
+                                            dto.setPatientName(patientNameMap.get(encounter.getPatientId()));
+                                            return dto;
+                                        })
+                                        .collect(Collectors.toList());
+                            });
+                });
     }
+
 
     @WithSession
     public Uni<List<PatientDTO>> getPatientsByPractitioner(Long practitionerId) {

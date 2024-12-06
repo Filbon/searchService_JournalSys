@@ -10,6 +10,8 @@ public class EncounterDTO {
     private Long patientId;
     private Long practitionerId;
 
+    private String patientName;
+
     public EncounterDTO() {}
 
     public EncounterDTO(Long id, LocalDateTime date, String reason, String outcome, Long patientId, Long practitionerId) {
@@ -67,5 +69,13 @@ public class EncounterDTO {
 
     public void setPractitionerId(Long practitionerId) {
         this.practitionerId = practitionerId;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
     }
 }
