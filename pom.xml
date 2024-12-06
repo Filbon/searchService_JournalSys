@@ -113,7 +113,11 @@
             <artifactId>quarkus-resteasy-reactive-jsonb</artifactId>
             <version>3.15.2</version>
         </dependency>
-
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.32</version> <!-- Use the appropriate version -->
+        </dependency>
 
     </dependencies>
 
