@@ -13,7 +13,6 @@ import io.smallrye.mutiny.Uni;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-
 @Path("/search")
 public class SearchResource {
 
