@@ -2,6 +2,7 @@ package com.example.resource;
 
 import com.example.DTO.EncounterDTO;
 import com.example.DTO.PatientDTO;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -19,9 +20,9 @@ public class SearchResource {
     @Inject
     SearchService searchService;
 
-    // Endpoint to search patients by name
     @GET
     @Path("/patients/name/{name}")
+    @RolesAllowed("DOCTOR")
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<List<PatientDTO>> getPatientsByName(@PathParam("name") String name) {
         System.out.println("Received request to search patients by name: " + name);
@@ -42,6 +43,7 @@ public class SearchResource {
 
     @GET
     @Path("/patients/by-condition")
+    @RolesAllowed("DOCTOR")
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<List<PatientDTO>> searchPatientsByCondition(@QueryParam("conditionName") String conditionName) {
         return searchService.searchPatientsByCondition(conditionName);
